@@ -8,7 +8,7 @@ LIB := -L/opt/bin/lib
 DST := /opt/bin/lib
 
 object: p_$(NAME).c
-	$(CC) -o $(BD)/_$(NAME).o -c -fPIC -Wall -Werror p_$(NAME).c
+	$(CC) -o $(BD)/_$(NAME).o -c -fPIC -Wall -Werror p_$(NAME).c $(INC)
 
 rel:  object
 	$(CC) -shared -o $(BD)/_$(NAME).so $(BD)/_$(NAME).o
@@ -23,7 +23,7 @@ clean:
 
 
 test: hash_test.c $(ID)/p_$(NAME).h
-	$(CC) -o $(NAME) $(NAME)_test.c $(LIB) -l$(NAME) $(c_flags) -g -DDEBUG
+	$(CC) -o $(BD)/$(NAME) $(NAME)_test.c $(LIB) -l$(NAME) $(c_flags) -g -DDEBUG
 
 install: rel
 ifeq ("","$(wildcard $(DST)/lib$(NAME).so)")
