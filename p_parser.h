@@ -8,3 +8,4 @@
 #include "p_tools.h"
 //Useful tools
 
+int t_getch();

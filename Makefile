@@ -22,8 +22,8 @@ clean:
 
 
 
-test: hash_test.c $(ID)/p_$(NAME).h
-	$(CC) -o $(BD)/$(NAME) $(NAME)_test.c $(LIB) -l$(NAME) $(c_flags) -g -DDEBUG
+test: $(NAME)_test.c $(ID)/p_$(NAME).h
+	$(CC) -o $(BD)/$(NAME) $(NAME)_test.c $(LIB) -l$(NAME) $(c_flags) -g -DDEBUG $(INC)
 
 install: rel
 ifeq ("","$(wildcard $(DST)/lib$(NAME).so)")
