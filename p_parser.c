@@ -3,6 +3,7 @@
 #include <stddef.h>
 
 #include <stdio.h>
+#include <ctype.h>
 #include "p_tools.h"
 
 
@@ -22,45 +23,140 @@ typedef struct lexerToken{
 	char * value;
 }LexerToken;
 
+
+//functions
 typedef int (*ScanFunction)();
+typedef int (*TokenFunction)();
 
-typedef struct scanner{
-	ScanFunction scan_function_ptr;
-	int putback;
+typedef struct parser {
+	//Variables
 	int line;
-}Scanner;
+	int putback;
+	//Functions
+	ScanFunction scan_function_ptr;
+	TokenFunction token_function_ptr;
+}Parser;
 
-typedef struct lexer{
-	LexerToken * tokens;
-}Lexer;
 
-Scanner * t_parser_scanner_create(ScanFunction scan_function_ptr) {
-	Scanner * scanner = malloc(sizeof * scanner);
-	scanner->scan_function_ptr = scan_function_ptr;
-	scanner->line = 0;
-	scanner->putback = 0;
-	return scanner;
+Parser * t_parser_create(ScanFunction scan_function_ptr, TokenFunction token_function_ptr) {
+	Parser * parser = malloc(sizeof * parser);
+	parser->line = 0;
+	parser->putback = 0;
+	parser->scan_function_ptr = scan_function_ptr;
+	parser->token_function_ptr = token_function_ptr;
+	return parser;
 }
 
-int t_parser_scanner_next_char(Scanner * scanner) {
+int t_parser_loop(Parser * parser) {
+	int ch;
+	while((ch = t_parser_next_char(parser)) != EOF)
+	{
+		int token = t_parser_next_token(parser, ch);
+		
+	}
+}
+
+int t_parser_next_char(Parser * parser) {
 	int ch;
 
-	if (scanner->putback) {
-		ch = scanner->putback;
-		scanner->putback = 0;
+	if (parser->putback) {
+		ch = parser->putback;
+		parser->putback = 0;
 		return ch;
 	}
 
-	ch = scanner->scan_function_ptr();
+	ch = parser->scan_function_ptr();
 	if('\n' == ch)
-		scanner->line++;
+		parser->line++;
 	return ch;
 }
 
+int t_parser_next_token(Parser * parser, int ch) {
 
-
-int lexerToken(char ch) {
 	return 0;
 }
+
+void t_parser_putback(Parser * parser, int ch) {
+	parser->putback = ch;
+}
+void t_parser_print_state(Parser * parser) {
+	printf("Line: %i, Putback: %c\n", parser->line, parser->putback);
+}
+
+
+void t_parser_parse_word(Parser * parser, int ch){
+	do {
+		if (isspace(ch)) {
+			t_parser_putback(parser, ch);
+			break;
+		}
+		
+		switch (ch) {
+			case ';':
+				t_parser_putback(parser, ';');
+				break;
+			case '0' ... '9':
+			case 'a' ... 'z':
+			case 'A' ... 'Z':
+				printf("%c", (char)ch);
+				continue;
+			default:
+				return;
+		}
+	} while ((ch = t_parser_scanner_next_char(parser)) != EOF);
+}
+void t_parser_parse_number(Parser * parser, int ch){
+	do {
+		if (isspace(ch)) {
+			t_parser_putback(parser, ch);
+			break;
+		}
+		if (ch == ';') {
+			t_parser_putback(parser, ';');
+			break;
+		}
+		printf("%c", (char)ch);
+		switch (ch) {
+			case '0' ... '9':
+			case 'a' ... 'f':
+			case 'A' ... 'F':
+				continue;
+			default:
+				break;
+		}
+	} while ((ch = t_parser_scanner_next_char(parser)) != EOF);
+}
+
+void t_parser_parse_whitespace(Parser * parser, int ch) {
+	do {
+		if (!isspace(ch)) {
+			t_parser_putback(parser, ch);
+			break;
+		}
+		if (ch == ';') {
+			t_parser_putback(parser, ';');
+			break;
+		}
+	} while ((ch = t_parser_scanner_next_char(parser)) != EOF);
+}
+
+void t_parser_parse_string(Parser * parser, int ch) {
+	while ((ch = t_parser_scanner_next_char(parser)) != EOF) {
+		if (ch == '\\') {
+			//ESCAPES
+			//t_parser_putback(parser, ch);
+			continue;
+		}
+		if (ch == '"') {
+			break;
+		}
+		printf("%c", (char)ch);
+	}
+}
+
+void t_parser_parse_string_escapes(Parser * parser, int ch) {
+	while ((ch == t_parser_
+}
+
 
 
